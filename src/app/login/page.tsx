@@ -1,3 +1,9 @@
+import { Button } from "@/components/ui/button";
+
 export default function LoginPage() {
-  return <div>Login</div>;
+  return (
+    <div className="">
+      <Button>hola</Button>
+    </div>
+  );
 }
