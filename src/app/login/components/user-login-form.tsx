@@ -1,29 +1,60 @@
 "use client";
-import * as React from "react";
-import { cn } from "@/lib/utils";
+import { InputPassword } from "@/components/custom/input-password";
 import { Button } from "@/components/ui/button";
+import { Icons } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Icons } from "@/components/ui/icons";
-import { InputPassword } from "@/components/custom/input-password";
+import { cn } from "@/lib/utils";
+import { createClient } from "@/utils/supabase/client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { redirect, useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+
+const schema = z.object({
+  email: z.string().email({ message: "Email es obligatorio" }),
+  password: z.string().min(8, { message: "Contraseña es obligatoria" }),
+});
+
+type UserAuth = z.infer<typeof schema>;
+const supabase = createClient();
 
 type UserLoginFormProps = React.HTMLAttributes<HTMLDivElement>;
 
 export function UserLoginForm({ className, ...props }: UserLoginFormProps) {
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<UserAuth>({
+    resolver: zodResolver(schema),
+  });
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { replace } = useRouter();
 
-  async function onSubmit(event: React.SyntheticEvent) {
-    event.preventDefault();
+  const onSubmit = async (user: UserAuth) => {
     setIsLoading(true);
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: user.email,
+      password: user.password,
+    });
 
-    setTimeout(() => {
+    if (data.user) {
+      toast.success("Inicio Sesión exitoso");
+      replace("/dashboard");
+    }
+
+    if (error) {
+      toast.error("Inicio sesión invalido");
       setIsLoading(false);
-    }, 3000);
-  }
+    }
+  };
 
   return (
     <div className={cn("grid gap-6", className)} {...props}>
-      <form onSubmit={onSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid gap-4">
           <div className="grid gap-1">
             <Label className="sr-only" htmlFor="email">
@@ -38,7 +69,13 @@ export function UserLoginForm({ className, ...props }: UserLoginFormProps) {
               autoCorrect="off"
               disabled={isLoading}
               suffix={<Icons.mail />}
+              {...register("email")}
             />
+            {errors.email?.message && (
+              <span className="text-red-400 text-sm px-2">
+                {errors.email?.message}
+              </span>
+            )}
             <InputPassword
               id="password"
               placeholder="Contraseña"
@@ -46,7 +83,13 @@ export function UserLoginForm({ className, ...props }: UserLoginFormProps) {
               autoComplete="email"
               autoCorrect="off"
               disabled={isLoading}
+              {...register("password")}
             />
+            {errors.password?.message && (
+              <span className="text-red-400 text-sm px-2">
+                {errors.password?.message}
+              </span>
+            )}
           </div>
           <Button disabled={isLoading}>
             {isLoading && (

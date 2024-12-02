@@ -1,30 +1,52 @@
 "use client";
-import * as React from "react";
-import { cn } from "@/lib/utils";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import { InputPassword } from "@/components/custom/input-password";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Icons } from "@/components/ui/icons";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+import { createClient } from "@/utils/supabase/client";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { InputPassword } from "@/components/custom/input-password";
+import * as React from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+
+const schema = z.object({
+  email: z.string().email({ message: "Email es obligatorio" }),
+  password: z.string().min(8, { message: "Contraseña es obligatoria" }),
+});
+
+type UserAuth = z.infer<typeof schema>;
 
 type UserSignupFormProps = React.HTMLAttributes<HTMLDivElement>;
 
 export function UserSignupForm({ className, ...props }: UserSignupFormProps) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<UserAuth>({
+    resolver: zodResolver(schema),
+  });
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
-  async function onSubmit(event: React.SyntheticEvent) {
-    event.preventDefault();
+  const onSubmit = async (user: UserAuth) => {
     setIsLoading(true);
+    console.log("datos del usuario", user);
+    const supabase = createClient();
+    const { data, error } = await supabase.auth.signUp({
+      email: user.email,
+      password: user.password,
+    });
 
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 3000);
-  }
+    console.log(data, error);
+    setIsLoading(false);
+  };
 
   return (
     <div className={cn("grid gap-6", className)} {...props}>
-      <form onSubmit={onSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid gap-2">
           <div className="grid gap-1">
             <Label className="sr-only" htmlFor="email">
@@ -39,7 +61,13 @@ export function UserSignupForm({ className, ...props }: UserSignupFormProps) {
               autoCorrect="off"
               disabled={isLoading}
               suffix={<Icons.mail />}
+              {...register("email")}
             />
+            {errors.email?.message && (
+              <span className="text-red-400 text-sm px-2">
+                {errors.email?.message}
+              </span>
+            )}
             <InputPassword
               id="password"
               placeholder="Contraseña"
@@ -47,7 +75,13 @@ export function UserSignupForm({ className, ...props }: UserSignupFormProps) {
               autoComplete="email"
               autoCorrect="off"
               disabled={isLoading}
+              {...register("password")}
             />
+            {errors.password?.message && (
+              <span className="text-red-400 text-sm px-2">
+                {errors.password?.message}
+              </span>
+            )}
           </div>
           <Button disabled={isLoading}>
             {isLoading && (
@@ -75,14 +109,6 @@ export function UserSignupForm({ className, ...props }: UserSignupFormProps) {
           INICIAR SESION
         </span>
       </Link>
-      {/* <Button variant="outline" type="button" disabled={isLoading}>
-        {isLoading ? (
-          <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          <Icons.gitHub className="mr-2 h-4 w-4" />
-        )}{" "}
-        GitHub
-      </Button> */}
     </div>
   );
 }
