@@ -1,4 +1,4 @@
-import { HtmlContent } from "@/components/HtmlContent";
+import { HtmlContent } from "@/components/custom/HtmlContent";
 import { Message } from "@/types/messageInterface";
 import Link from "next/link";
 
