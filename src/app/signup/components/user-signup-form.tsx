@@ -8,8 +8,10 @@ import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import * as React from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import * as z from "zod";
 
 const schema = z.object({
@@ -29,7 +31,8 @@ export function UserSignupForm({ className, ...props }: UserSignupFormProps) {
   } = useForm<UserAuth>({
     resolver: zodResolver(schema),
   });
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { replace } = useRouter();
 
   const onSubmit = async (user: UserAuth) => {
     setIsLoading(true);
@@ -40,8 +43,12 @@ export function UserSignupForm({ className, ...props }: UserSignupFormProps) {
       password: user.password,
     });
 
-    console.log(data, error);
-    setIsLoading(false);
+    if (data.user) {
+      toast.success("Verifique su bandeja de entrada");
+      replace("/login");
+    } else {
+      setIsLoading(false);
+    }
   };
 
   return (
