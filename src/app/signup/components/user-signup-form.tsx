@@ -1,9 +1,9 @@
 "use client";
-import { InputPassword } from "@/components/custom/input-password";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Icons } from "@/components/ui/icons";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { InputPassword } from "@/components/ui/input-password";
+import { Button, buttonVariants } from "@/components/shadcn-ui/button";
+import { Icons } from "@/components/shadcn-ui/icons";
+import { Input } from "@/components/shadcn-ui/input";
+import { Label } from "@/components/shadcn-ui/label";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";

@@ -1,11 +1,23 @@
+"use client";
 import { createClient } from "@/utils/supabase/client";
-import { createContext, useEffect, useState } from "react";
+import { Session } from "@supabase/supabase-js";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
-const SessionContext = createContext(null);
+const SessionContext = createContext<Session | null>(null);
 const supabase = createClient();
 
-const SessionProvider = () => {
-  const [session, setSession] = useState(null);
+interface Props {
+  children?: ReactNode;
+}
+
+const SessionProvider = ({ children }: Props) => {
+  const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
     const {
@@ -13,7 +25,8 @@ const SessionProvider = () => {
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_OUT") {
         setSession(null);
-      } else if (session) {
+      }
+      if (session) {
         setSession(session);
       }
     });
@@ -25,7 +38,17 @@ const SessionProvider = () => {
 
   return (
     <SessionContext.Provider value={session}>
-      <App />
+      {children}
     </SessionContext.Provider>
   );
 };
+
+const useSession = () => {
+  const context = useContext(SessionContext);
+  if (context === undefined) {
+    throw new Error("useSession debe ser usado dentro de un SessionProvider");
+  }
+  return context;
+};
+
+export { SessionProvider, useSession };

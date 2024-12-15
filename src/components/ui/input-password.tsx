@@ -1,8 +1,8 @@
 import * as React from "react";
 
-import { Input, InputProps } from "../ui/input";
-import { useToggle } from "@/hooks/useToggle";
-import { Icons } from "../ui/icons";
+import { Input, InputProps } from "../shadcn-ui/input";
+import { useToggle } from "@/hooks/use-toggle";
+import { Icons } from "../shadcn-ui/icons";
 
 const InputPassword = React.forwardRef<HTMLInputElement, InputProps>(
   ({ type, suffix, ...props }, ref) => {

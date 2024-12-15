@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/shadcn-ui/button";
 import { cn } from "@/lib/utils";
 import { UserLoginForm } from "./components/user-login-form";
 
@@ -44,7 +44,7 @@ export default async function LoginPage() {
           </div>
         </div>
         {/* Seccion Derecha */}
-        <div className="p-8">
+        <div className="p-8 min-h-screen flex justify-center">
           <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
             <div className="flex flex-col space-y-2 text-center">
               <h1 className="text-2xl font-semibold tracking-tight">

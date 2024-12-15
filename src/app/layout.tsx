@@ -1,14 +1,13 @@
-import { Main } from "@/components/custom/main";
+/* eslint-disable @next/next/no-sync-scripts */
 import { ThemeProvider } from "@/components/providers/theme-provider";
-import { AppSidebar } from "@/components/ui/app-sidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import { Toaster } from "sonner";
 import "./globals.css";
+import { SessionProvider } from "@/components/providers/session-provider";
+import { ReactQueryProvider } from "@/components/providers/query-client-provider";
 
 export const metadata: Metadata = {
-  title: "Toky Mail",
+  title: "Tokymail",
   description: "Filter Webmail App",
 };
 
@@ -17,26 +16,26 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = await cookies();
-  const defaultOpen = cookieStore.get("sidebar:state")?.value === "true";
-
   return (
     <html lang="en" suppressHydrationWarning>
-      <head />
-      <body>
-        <Toaster richColors duration={2000} />
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <SidebarProvider defaultOpen={defaultOpen}>
-            <AppSidebar />
-            <Main>{children}</Main>
-          </SidebarProvider>
-        </ThemeProvider>
-      </body>
+      <SessionProvider>
+        <ReactQueryProvider>
+          <head>
+            <script src="http://localhost:8097"></script>
+          </head>
+          <body className="min-w-[400px]">
+            <Toaster richColors duration={2000} />
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="dark"
+              enableSystem
+              disableTransitionOnChange
+            >
+              {children}
+            </ThemeProvider>
+          </body>
+        </ReactQueryProvider>
+      </SessionProvider>
     </html>
   );
 }
